@@ -1,0 +1,106 @@
+{
+  "apc.activityBar": {
+    "position": "bottom",
+    "size": 32,
+    "hideSettings": false,
+    "itemMargin": 5
+  },
+  "apc.header": {
+    "height": 25
+  },
+  "apc.listRow": {
+    "fontSize": 11
+  },
+  "apc.statusBar": {
+    "position": "editor-bottom",
+    "height": 32,
+    "fontSize": 10
+  },
+  "apc.sidebar.titlebar": {
+    "fontSize": 10
+  },
+  "apc.stylesheet": {
+    "*": "font-family: 'Monaspace Neon Var', monospace;",
+    ".monaco-count-badge": "font-size: 10px !important;",
+    ".monaco-breadcrumb-item": "font-size: 10px !important;",
+    ".monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab .tab-label a": "font-size: 10px !important;",
+  },
+  "conventionalCommits.lineBreak": "\\n",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.fontFamily": "Monaspace Neon Var",
+  "editor.fontSize": 11,
+  "editor.fontLigatures": "'calt', 'liga', 'dlig', 'ss01', 'ss02', 'ss03', 'ss04', 'ss05', 'ss06', 'ss07', 'ss08'",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": false,
+  "editor.guides.bracketPairs": true,
+  "editor.linkedEditing": true,
+  "editor.minimap.autohide": true,
+  "editor.mouseWheelZoom": true,
+  "editor.stickyScroll.enabled": true,
+  "editor.wordWrap": "on",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[markdown]": {
+    "editor.wordWrap": "on"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
+  "eslint.experimental.useFlatConfig": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.lintTask.enable": true,
+  "errorLens.followCursor": "closestProblem",
+  "errorLens.fontStyleItalic": true,
+  "errorLens.gutterIconsEnabled": false,
+  "errorLens.messageBackgroundMode": "message",
+  "errorLens.scrollbarHackEnabled": true,
+  "errorLens.statusBarColorsEnabled": true,
+  "errorLens.statusBarMessageEnabled": true,
+  "errorLens.statusBarMessageType": "closestSeverity",
+  "explorer.compactFolders": false,
+  "files.autoSave": "off",
+  "github.copilot.enable": {
+    "*": true,
+    "markdown": false,
+    "plaintext": false,
+    "scminput": false
+  },
+  "git.autofetch": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "multiDiffEditor.experimental.enabled": true,
+  "terminal.integrated.fontFamily": "monospace",
+  "terminal.integrated.fontSize": 12,
+  "terminal.integrated.stickyScroll.enabled": true,
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "workbench.colorCustomizations": {
+    "editorInfo.foreground": "#0080ff6a"
+  },
+  "workbench.colorTheme": "Aura Dark (Soft Text)",
+  "workbench.editor.labelFormat": "short",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.tree.enableStickyScroll": true,
+  "workbench.tree.stickyScrollMaxItemCount": 15
+}
