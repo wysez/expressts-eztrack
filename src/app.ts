@@ -2,7 +2,7 @@ import express, { Application, json, urlencoded } from 'express';
 import { initializeOpenIDConnectClient } from '@utils/oidc-client';
 import morgan from 'morgan';
 import { logger, stream } from '@utils/winston-logger';
-import { CREDENTIALS, LOG_FORMAT, ORIGIN, SESSION_SECRET } from '@config';
+import { env } from '@config';
 import cors from 'cors';
 import hpp from 'hpp';
 import helmet from 'helmet';
@@ -10,6 +10,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import { router } from './features/routes';
+import { initializeDrizzleInstance } from './core/database/drizzle';
 
 export const createApplicaton = async () => {
   const app = express();
@@ -17,6 +18,10 @@ export const createApplicaton = async () => {
   // Initialize OpenID Connect client
   await initializeOpenIDConnectClient();
   logger.info('  ✅ \t\tOpenID Connect client initialized.');
+
+  // Initialize Drizzle instance
+  await initializeDrizzleInstance();
+  logger.info('  ✅ \t\tDrizzle instance initialized.');
 
   // Initialize Express middleware
   initializeMiddleware(app);
@@ -31,8 +36,8 @@ export const createApplicaton = async () => {
 };
 
 const initializeMiddleware = (app: Application) => {
-  app.use(morgan(LOG_FORMAT, { stream }));
-  app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
+  app.use(morgan('dev', { stream }));
+  app.use(cors({ origin: env.ORIGIN, credentials: env.CREDENTIALS }));
   app.use(hpp());
   app.use(helmet());
   app.use(compression());
@@ -42,7 +47,7 @@ const initializeMiddleware = (app: Application) => {
 
   app.use(
     session({
-      secret: SESSION_SECRET,
+      secret: env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -56,5 +61,5 @@ const initializeMiddleware = (app: Application) => {
 };
 
 const initializeRoutes = (app: Application) => {
-  app.use('', router);
+  app.use('/', router);
 };
