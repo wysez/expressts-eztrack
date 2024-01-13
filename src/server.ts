@@ -1,17 +1,15 @@
 import express from 'express';
-import { validateEnv } from './core/utils/validate-env';
 import { createApplicaton } from './app';
 import { logger } from './core/utils/winston-logger';
-import { NODE_ENV, PORT } from './core/config';
+import { env } from './core/config';
 
 // validateEnv();
 
 const startServer = async () => {
   try {
     const app = await createApplicaton();
-    const port = PORT || 3000;
 
-    app.listen(port, () => {
+    app.listen(env.PORT, () => {
       logger.info(
         `==================================================================`,
       );
@@ -20,10 +18,10 @@ const startServer = async () => {
         `===================== 🚀 Server is running! ======================`,
       );
       logger.info(
-        `======================== ENV: ${NODE_ENV} ========================`,
+        `======================== ENV: ${env.NODE_ENV} ========================`,
       );
       logger.info(
-        `=========================== PORT: ${PORT} ===========================`,
+        `=========================== PORT: ${env.PORT} ===========================`,
       );
       logger.info(
         `==================================================================`,

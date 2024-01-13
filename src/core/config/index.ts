@@ -1,24 +1,35 @@
 import { config } from 'dotenv';
+import { bool, cleanEnv, port, str, url } from 'envalid';
+
 config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 
-export const CREDENTIALS = process.env.CREDENTIALS === 'true';
-export const { NODE_ENV, PORT, SESSION_SECRET, LOG_FORMAT, LOG_DIR, ORIGIN } =
-  process.env;
-export const {
-  POSTGRES_USER,
-  POSTGRES_PASSWORD,
-  POSTGRES_HOST,
-  POSTGRES_PORT,
-  POSTGRES_DATABASE,
-} = process.env;
-export const {
-  OIDC_ISSUER,
-  OIDC_CLIENT_ID,
-  OIDC_CLIENT_SECRET,
-  OIDC_REDIRECT_URI,
-  OIDC_SCOPE,
-  OIDC_RESPONSE_TYPE,
-  OIDC_RESPONSE_MODE,
-  OIDC_GRANT_TYPE,
-  OIDC_USE_PKCE,
-} = process.env;
+export const env = cleanEnv(process.env, {
+  // General configuration
+  NODE_ENV: str({ choices: ['development', 'test', 'production'] }),
+  PORT: port({ devDefault: 5174 }),
+  SESSION_SECRET: str(),
+  LOG_FORMAT: str({ choices: ['combined', 'dev', 'simple'] }),
+  LOG_DIR: str({ devDefault: '../../../logs' }),
+  ORIGIN: url({ devDefault: 'http://localhost:3000' }),
+  CREDENTIALS: bool({ default: true }),
+
+  // PostgreSQL configuration
+  POSTGRES_URL: url(),
+  POSTGRES_USER: str(),
+  POSTGRES_PASSWORD: str(),
+  POSTGRES_HOST: str(),
+  POSTGRES_PORT: port(),
+  POSTGRES_DATABASE: str(),
+  POSTGRES_SSL: bool(),
+
+  // OIDC configuration
+  OIDC_ISSUER: url(),
+  OIDC_CLIENT_ID: str(),
+  OIDC_CLIENT_SECRET: str(),
+  OIDC_REDIRECT_URI: url({ devDefault: 'http://localhost:3000' }),
+  OIDC_SCOPE: str({ default: 'code' }),
+  OIDC_RESPONSE_TYPE: str({ default: 'openid profile' }),
+  OIDC_RESPONSE_MODE: str(),
+  OIDC_GRANT_TYPE: str(),
+  OIDC_USE_PKCE: bool({ default: true }),
+});
