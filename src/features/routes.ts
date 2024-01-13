@@ -3,4 +3,4 @@ import { authRoutes } from './auth/auth.routes';
 
 export const router = Router();
 
-router.use('/oa', authRoutes);
+router.use(authRoutes);
