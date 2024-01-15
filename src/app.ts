@@ -1,16 +1,18 @@
 import express, { Application, json, urlencoded } from 'express';
-import { initializeOpenIDConnectClient } from '@utils/oidc-client';
 import morgan from 'morgan';
-import { logger, stream } from '@utils/winston-logger';
-import { env } from '@config';
 import cors from 'cors';
 import hpp from 'hpp';
 import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import { router } from './features/routes';
-import { initializeDrizzleInstance } from './core/database/drizzle';
+
+import { env } from '@config';
+import { logger, stream } from '@utils/winston-logger';
+import { initializeOpenIDConnectClient } from '@utils/oidc-client';
+import { DrizzleInstance, initializeDrizzleInstance } from '@database/drizzle';
+import { router } from '@features/routes';
+import { DrizzleSessionStore } from './core/utils/drizzle-session-store';
 
 export const createApplicaton = async () => {
   const app = express();
@@ -56,6 +58,7 @@ const initializeMiddleware = (app: Application) => {
         sameSite: true,
         maxAge: 1000 * 60 * 60, // 1 hour,
       },
+      store: new DrizzleSessionStore(DrizzleInstance()),
     }),
   );
 };
