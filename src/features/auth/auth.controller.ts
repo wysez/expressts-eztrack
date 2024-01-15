@@ -27,6 +27,7 @@ export const pageloadController = async (
       });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = user;
 
     return response.status(200).json({
@@ -41,16 +42,9 @@ export const pageloadController = async (
 export const signinController = async (
   request: Request,
   response: Response,
-  next: NextFunction,
 ) => {
   try {
     const { username, password } = request.body;
-
-    if (!username || !password) {
-      return response
-        .status(400)
-        .json({ message: 'Username or password is missing' });
-    }
 
     const db = DrizzleInstance();
     const userWithPassword = await db.query.users.findFirst({
@@ -73,6 +67,7 @@ export const signinController = async (
       });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = userWithPassword;
 
     request.session.userid = userWithoutPassword.id;
@@ -83,14 +78,15 @@ export const signinController = async (
       user: userWithoutPassword,
     });
   } catch (error) {
-    next(error);
+    return response.status(400).json({
+      message: 'Unable to sign in. Please try again later.',
+    });
   }
 };
 
 export const signupController = async (
   request: Request,
   response: Response,
-  next: NextFunction,
 ) => {
   try {
     const db = DrizzleInstance();
@@ -105,25 +101,6 @@ export const signupController = async (
       zipCode,
     } = request.body;
 
-    const requiredFields = [
-      username,
-      email,
-      password,
-      firstName,
-      lastName,
-      birthDate,
-      zipCode,
-    ];
-
-    if (requiredFields.some(field => !field)) {
-    }
-
-    if (typeof username !== 'string' && typeof password !== 'string') {
-      response.status(400).json({
-        message: 'Username or password is not a string',
-      });
-    }
-
     const user = await db
       .select()
       .from(users)
@@ -131,13 +108,13 @@ export const signupController = async (
       .limit(1);
 
     if (user[0]) {
-      response.status(200).json({
+      return response.status(200).json({
         message: 'User already exists',
       });
     }
 
     const hashedPassword = await hash(password, 10);
-    const formattedBirthDate = new Date(birthDate);
+    const formattedBirthDate = new Date(birthDate).toLocaleDateString();
 
     await db.insert(users).values({
       username,
@@ -150,35 +127,91 @@ export const signupController = async (
       zipCode,
     });
 
-    response.status(201).json({
+    return response.status(201).json({
       message: 'User created',
     });
   } catch (error) {
     logger.error(error);
-    response.status(500).json({
+
+    // Duploicate key value violates unique constraint
+    if (error?.code === '23505') {
+      return response.status(409).json({
+        message: 'User already exists',
+      });
+    }
+
+    return response.status(500).json({
       message: 'Internal server error',
       error,
     });
   }
 };
 
-export const oasigninController = async (
+export const signoutController = async (
   request: Request,
   response: Response,
-  next: NextFunction,
-) => {};
-export const oasignoutController = async (
-  request: Request,
-  response: Response,
-  next: NextFunction,
-) => {};
+) => {
+  try {
+    request.session.destroy(error => {
+      if (error) {
+        return response.status(400).json({
+          message: 'Unable to sign out. Please try again later.',
+        });
+      }
+
+      return response.status(200).json({
+        message: 'User signed out',
+      });
+    });
+  } catch (error) {
+    return response.status(400).json({
+      message: 'Unable to sign out. Please try again later.',
+    });
+  }
+};
+
+// export const oasigninController = async (
+//   request: Request,
+//   response: Response,
+//   next: NextFunction,
+// ) => {};
+// export const oasignoutController = async (
+//   request: Request,
+//   response: Response,
+//   next: NextFunction,
+// ) => {};
 export const userinfoController = async (
   request: Request,
   response: Response,
-  next: NextFunction,
-) => {};
-export const refreshController = async (
-  request: Request,
-  response: Response,
-  next: NextFunction,
-) => {};
+) => {
+  try {
+    const uid = request.session.userid;
+
+    const db = DrizzleInstance();
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, uid),
+    });
+
+    if (!user) {
+      return response.status(400).json({
+        message: 'User not found',
+      });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userWithoutPassword } = user;
+    return response.status(200).json({
+      user: userWithoutPassword,
+    });
+  } catch (error) {
+    return response.status(400).json({
+      message: 'Unable to get user info. Please try again later.',
+    });
+  }
+};
+// export const refreshController = async (
+//   request: Request,
+//   response: Response,
+//   next: NextFunction,
+// ) => {};
