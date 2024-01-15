@@ -1,10 +1,12 @@
 import { Client } from 'pg';
 import { NodePgDatabase, drizzle } from 'drizzle-orm/node-postgres';
 
-import { users } from './schema/user';
-import { env } from '../config';
+import { env } from '@config';
 
-let db: NodePgDatabase<{ users: typeof users }>;
+import { users } from './schema/user';
+import { sessions } from './schema/session';
+
+let db: NodePgDatabase<{ users: typeof users; sessions: typeof sessions }>;
 
 export const initializeDrizzleInstance = async () => {
   if (!db) {
@@ -18,7 +20,7 @@ export const initializeDrizzleInstance = async () => {
     });
 
     await client.connect();
-    db = drizzle(client, { schema: { users } });
+    db = drizzle(client, { schema: { users, sessions } });
   }
 
   return db;
