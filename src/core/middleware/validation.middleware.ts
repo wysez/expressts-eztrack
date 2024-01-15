@@ -3,6 +3,8 @@ import { plainToInstance } from 'class-transformer';
 import { validateOrReject, ValidationError } from 'class-validator';
 import { HttpException } from '@exceptions/http-exception';
 
+import { z } from 'zod';
+
 /**
  * @name ValidationMiddleware
  * @description Allows use of decorator and non-decorator based validation
@@ -46,3 +48,18 @@ export const ValidationMiddleware = (
       });
   };
 };
+
+export const validate =
+  (schema: z.ZodSchema) =>
+  (request: Request, response: Response, next: NextFunction) => {
+    try {
+      schema.parse(request.body);
+      next();
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return response.status(400).json({
+          error: error.flatten().fieldErrors,
+        });
+      }
+    }
+  };
