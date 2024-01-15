@@ -29,11 +29,14 @@
       "@/*": [
         "*"
       ],
+      "@features/*": [
+        "features/*",
+      ],
       "@config": [
         "core/config"
       ],
-      "@database": [
-        "core/database"
+      "@database/*": [
+        "core/database/*"
       ],
       "@exceptions/*": [
         "core/exceptions/*"
