@@ -2,15 +2,11 @@ import { defineConfig } from 'drizzle-kit';
 import { env } from './src/core/config';
 
 export default defineConfig({
-  schema: './src/core/schema/*',
+  schema: './src/core/database/schema/*',
   out: 'drizzle',
   driver: 'pg',
   dbCredentials: {
-    host: env.POSTGRES_HOST,
-    port: env.POSTGRES_PORT,
-    user: env.POSTGRES_USER,
-    password: env.POSTGRES_PASSWORD,
-    database: env.POSTGRES_DATABASE,
+    connectionString: env.POSTGRES_URL,
   },
   verbose: true,
   strict: true,
