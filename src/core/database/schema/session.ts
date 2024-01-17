@@ -1,9 +1,10 @@
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core';
 
 export const sessions = pgTable('session', {
   id: serial('id').primaryKey().notNull(),
   session_id: text('session_id').notNull(),
+  expiresAt: integer('expires_at').notNull(),
   data: text('data').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });
+
+export type Session = typeof sessions.$inferSelect;

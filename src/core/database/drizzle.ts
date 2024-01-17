@@ -11,16 +11,12 @@ let db: NodePgDatabase<{ users: typeof users; sessions: typeof sessions }>;
 export const initializeDrizzleInstance = async () => {
   if (!db) {
     const client = new Client({
-      host: env.POSTGRES_HOST,
-      port: env.POSTGRES_PORT,
-      user: env.POSTGRES_USER,
-      password: env.POSTGRES_PASSWORD,
-      database: env.POSTGRES_DATABASE,
+      connectionString: env.POSTGRES_NPE_URL,
       ssl: env.POSTGRES_SSL,
     });
 
     await client.connect();
-    db = drizzle(client, { schema: { users, sessions } });
+    db = drizzle(client, { schema: { users, sessions }, logger: true });
   }
 
   return db;

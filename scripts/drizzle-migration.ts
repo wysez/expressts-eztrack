@@ -6,7 +6,7 @@ import { env } from '../src/core/config';
 (async () => {
   console.log('❕ Starting migration...');
   const client = new Client({
-    connectionString: env.POSTGRES_URL,
+    connectionString: env.POSTGRES_ADMIN_URL,
   });
 
   await client.connect();

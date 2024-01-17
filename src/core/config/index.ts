@@ -14,12 +14,8 @@ export const env = cleanEnv(process.env, {
   CREDENTIALS: bool({ default: true }),
 
   // PostgreSQL configuration
-  POSTGRES_URL: url(),
-  POSTGRES_USER: str(),
-  POSTGRES_PASSWORD: str(),
-  POSTGRES_HOST: str(),
-  POSTGRES_PORT: port(),
-  POSTGRES_DATABASE: str(),
+  POSTGRES_ADMIN_URL: url(),
+  POSTGRES_NPE_URL: url(),
   POSTGRES_SSL: bool(),
 
   // OIDC configuration
