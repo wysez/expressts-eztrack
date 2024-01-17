@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { eq } from 'drizzle-orm';
 import { compare, hash } from 'bcrypt';
-import { DrizzleInstance } from '@/core/database/drizzle';
-import { users } from '@/core/database/schema/user';
-import { logger } from '@/core/utils/winston-logger';
+import { eq } from 'drizzle-orm';
 import { inspect } from 'util';
+import { DrizzleInstance } from '@database/drizzle';
+import { users } from '@database/schema/user';
+import { logger } from '@/core/utils/winston-logger';
 
 export const pageloadController = async (
   request: Request,
@@ -22,7 +22,7 @@ export const pageloadController = async (
     });
 
     if (!user) {
-      return response.status(400).json({
+      return response.status(409).json({
         message: 'User not found',
       });
     }
@@ -31,7 +31,7 @@ export const pageloadController = async (
     const { password: _, ...userWithoutPassword } = user;
 
     return response.status(200).json({
-      message: 'User found',
+      isAuthenticated: request.session.isAuthenticated,
       user: userWithoutPassword,
     });
   } catch (error) {
@@ -51,6 +51,8 @@ export const signinController = async (
       where: eq(users.username, username),
     });
 
+    logger.info(inspect(userWithPassword, false, null, true));
+
     if (!userWithPassword) {
       return response.status(400).json({
         message: 'User not found',
@@ -61,6 +63,7 @@ export const signinController = async (
       password,
       userWithPassword.password,
     );
+
     if (!doesPasswordMatch) {
       return response.status(400).json({
         error: { message: 'Incorrect password' },
@@ -70,14 +73,16 @@ export const signinController = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = userWithPassword;
 
+    logger.info('Adding user to session');
     request.session.userid = userWithoutPassword.id;
     request.session.isAuthenticated = true;
 
+    logger.info('Sending response');
     return response.status(200).json({
-      message: 'User found',
       user: userWithoutPassword,
     });
   } catch (error) {
+    logger.error(error);
     return response.status(400).json({
       message: 'Unable to sign in. Please try again later.',
     });
@@ -101,13 +106,11 @@ export const signupController = async (
       zipCode,
     } = request.body;
 
-    const user = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, username))
-      .limit(1);
+    const user = await db.query.users.findFirst({
+      where: eq(users.username, username),
+    });
 
-    if (user[0]) {
+    if (user) {
       return response.status(200).json({
         message: 'User already exists',
       });
@@ -127,8 +130,15 @@ export const signupController = async (
       zipCode,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userWithoutPassword } =
+      await db.query.users.findFirst({
+        where: eq(users.username, username),
+      });
+
     return response.status(201).json({
       message: 'User created',
+      user: userWithoutPassword,
     });
   } catch (error) {
     logger.error(error);

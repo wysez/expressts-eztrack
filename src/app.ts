@@ -56,9 +56,15 @@ const initializeMiddleware = (app: Application) => {
         httpOnly: true,
         secure: false,
         sameSite: true,
-        maxAge: 1000 * 60 * 60, // 1 hour,
+        maxAge: 1000 * 30, // 15 seconds
       },
-      store: new DrizzleSessionStore(DrizzleInstance()),
+      store: new DrizzleSessionStore({
+        database: DrizzleInstance(),
+        ttl: 1000 * 60 * 60, // 1 hour
+        autoClearExpiredSessions: true,
+        autoClearExpiredSessionsIntervalMs: 1000 * 60 * 60 * 8, // 8 hours
+        captureRejections: true,
+      }),
     }),
   );
 };
