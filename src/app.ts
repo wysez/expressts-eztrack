@@ -6,34 +6,55 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
 
 import { env } from '@config';
 import { logger, stream } from '@utils/winston-logger';
 import { initializeOpenIDConnectClient } from '@utils/oidc-client';
-import { DrizzleInstance, initializeDrizzleInstance } from '@database/drizzle';
+import {
+  DrizzleInstance,
+  PostgresqlPool,
+  initializeDrizzleInstance,
+} from '@database/drizzle';
 import { router } from '@features/routes';
-import { DrizzleSessionStore } from './core/utils/drizzle-session-store';
+
+export const delay = (ms: number) =>
+  new Promise(resolve => setTimeout(resolve, ms));
 
 export const createApplicaton = async () => {
   const app = express();
 
   // Initialize OpenID Connect client
-  await initializeOpenIDConnectClient();
-  logger.info('  ✅ \t\tOpenID Connect client initialized.');
+  await initializeOpenIDConnectClient()
+    .then(() => {
+      logger.info('✅ OpenID Connect client initialized.');
+    })
+    .catch(error =>
+      logger.error(`❌ Error while initializing OpenID Client: ${error} `),
+    );
 
   // Initialize Drizzle instance
-  await initializeDrizzleInstance();
-  logger.info('  ✅ \t\tDrizzle instance initialized.');
+  await initializeDrizzleInstance()
+    .then(() => {
+      logger.info('✅ Drizzle instance initialized.');
+    })
+    .catch(error => {
+      logger.error(`❌ Error while initializing Drizzle: ${error}`);
+    });
 
   // Initialize Express middleware
   initializeMiddleware(app);
-  logger.info('  ✅ \t\tExpress middleware initialized.');
+  logger.info('✅ Express middleware initialized.');
+
+  // Initialize session store
+  initializeSessionStore(app);
+  logger.info('✅ Session store initialized.');
 
   // Initialize Express routes
   initializeRoutes(app);
-  logger.info('  ✅ \t\tExpress routes initialized.');
+  logger.info('✅ Express routes initialized.');
 
-  logger.info('  ✅ \t\tApplication initialized.');
+  logger.info('✅ Application initialized.');
   return app;
 };
 
@@ -46,6 +67,19 @@ const initializeMiddleware = (app: Application) => {
   app.use(json());
   app.use(urlencoded({ extended: true }));
   app.use(cookieParser());
+};
+
+const initializeSessionStore = (app: Application) => {
+  const pgSession = connectPgSimple(session);
+  const pgSessionStore = new pgSession({
+    pool: PostgresqlPool(),
+    createTableIfMissing: true,
+    schemaName: 'public',
+    tableName: 'session',
+    ttl: 60,
+    pruneSessionInterval: 3,
+    errorLog: logger.error.bind(logger),
+  });
 
   app.use(
     session({
@@ -56,19 +90,13 @@ const initializeMiddleware = (app: Application) => {
         httpOnly: true,
         secure: false,
         sameSite: true,
-        maxAge: 1000 * 30, // 15 seconds
+        maxAge: 1000 * 60 * 30,
       },
-      store: new DrizzleSessionStore({
-        database: DrizzleInstance(),
-        ttl: 1000 * 60 * 60, // 1 hour
-        autoClearExpiredSessions: true,
-        autoClearExpiredSessionsIntervalMs: 1000 * 60 * 60 * 8, // 8 hours
-        captureRejections: true,
-      }),
+      store: pgSessionStore,
     }),
   );
 };
 
 const initializeRoutes = (app: Application) => {
-  app.use('/', router);
+  app.use(router);
 };

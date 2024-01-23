@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import {
   date,
   index,
@@ -7,6 +8,7 @@ import {
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core';
+import { budgetItems } from './finances-budget-item';
 
 // Define custom types
 export const genderEnum = pgEnum('gender', [
@@ -41,5 +43,10 @@ export const users = pgTable(
   }),
 );
 
+export const userRelations = relations(users, ({ many }) => ({
+  budgetItems: many(budgetItems),
+}));
+
 // Infer types from schema
-export const User = users.$inferSelect;
+export const SelectUser = users.$inferSelect;
+export const InsertUser = users.$inferInsert;

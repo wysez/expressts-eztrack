@@ -1,0 +1,61 @@
+To perform an initial table setup using Drizzle ORM with a local PostgreSQL instance, you will need to define your table schemas in TypeScript and then create those tables in your database. Drizzle ORM provides the necessary API for declaring SQL schemas and creating tables.
+
+Here is a step-by-step guide based on the information available in the Drizzle documentation:
+
+1. Install Drizzle ORM and PostgreSQL client if you haven't already:
+
+```shell
+npm i drizzle-orm pg
+npm i -D drizzle-kit @types/pg
+```
+ [(1)](https://orm.drizzle.team/docs/get-started-postgresql#node-postgres) 
+
+2. Define your table schema in TypeScript using Drizzle's `pgTable` and `pgSchema` functions:
+
+```typescript
+import { serial, text, pgTable, pgSchema } from "drizzle-orm/pg-core";
+
+export const mySchema = pgSchema("my_schema");
+export const mySchemaUsers = mySchema.table('users', {
+ id: serial('id').primaryKey(),
+ name: text('name'),
+});
+```
+ [(2)](https://orm.drizzle.team/docs/schemas) 
+
+3. To actually create the schema and table in your PostgreSQL database, you would execute the following SQL commands, which correspond to your schema definitions:
+
+```sql
+CREATE SCHEMA "my_schema";
+CREATE TABLE "my_schema"."users" (
+ "id" serial PRIMARY KEY,
+ "name" text
+);
+```
+4. Connect to your PostgreSQL database using Drizzle ORM, either with a single client or a pool connection:
+
+```typescript
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Client } from "pg";
+
+const client = new Client({
+ connectionString: "postgres://user:password@host:port/db",
+});
+await client.connect();
+
+const db = drizzle(client);
+```
+ [(1)](https://orm.drizzle.team/docs/get-started-postgresql#node-postgres) 
+
+5. Execute the SQL commands to create the schema and tables. This step involves running raw SQL, which is not directly covered by the Drizzle documentation, but you can use the Drizzle instance (`db`) to execute raw SQL queries:
+
+```typescript
+await db.raw('CREATE SCHEMA "my_schema";');
+await db.raw('CREATE TABLE "my_schema"."users" ("id" serial PRIMARY KEY, "name" text);');
+```
+
+The `raw` method is not specifically mentioned in the provided documentation, but is commonly available in ORMs for executing arbitrary SQL commands. Ensure that the actual Drizzle ORM supports this method or an equivalent for running raw SQL.
+
+Keep in mind that the actual management of migrations and schema creation is typically a more complex process involving migration files and tools that track and apply schema changes to the database. The Drizzle documentation provided does not include specific migration tooling, and the example assumes you are directly creating the tables in your database.
+
+For any updates regarding migration tooling or more advanced schema management, refer to the official Drizzle ORM documentation or community resources for the most current information.

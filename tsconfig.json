@@ -26,11 +26,8 @@
     "importHelpers": true,
     "baseUrl": "src",
     "paths": {
-      "@/*": [
-        "*"
-      ],
       "@features/*": [
-        "features/*",
+        "features/*"
       ],
       "@config": [
         "core/config"
@@ -38,17 +35,23 @@
       "@database/*": [
         "core/database/*"
       ],
+      "@schemas/*": [
+        "core/database/schema/*"
+      ],
       "@exceptions/*": [
         "core/exceptions/*"
       ],
-      "@middlewares/*": [
-        "core/middlewares/*"
+      "@middleware/*": [
+        "core/middleware/*"
       ],
       "@routes/*": [
         "routes/*"
       ],
       "@utils/*": [
         "core/utils/*"
+      ],
+      "@/*": [
+        "*"
       ]
     }
   },

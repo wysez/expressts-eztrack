@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { compare, hash } from 'bcrypt';
 import { eq } from 'drizzle-orm';
-import { inspect } from 'util';
 import { DrizzleInstance } from '@database/drizzle';
 import { users } from '@database/schema/user';
 import { logger } from '@/core/utils/winston-logger';
@@ -14,8 +13,6 @@ export const pageloadController = async (
   try {
     const db = DrizzleInstance();
     const { userid } = request.session;
-
-    logger.info(inspect(request.session, false, null, true));
 
     const user = await db.query.users.findFirst({
       where: eq(users.id, userid),
@@ -51,11 +48,9 @@ export const signinController = async (
       where: eq(users.username, username),
     });
 
-    logger.info(inspect(userWithPassword, false, null, true));
-
     if (!userWithPassword) {
       return response.status(400).json({
-        message: 'User not found',
+        message: 'Profile not located.',
       });
     }
 
@@ -73,11 +68,9 @@ export const signinController = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = userWithPassword;
 
-    logger.info('Adding user to session');
     request.session.userid = userWithoutPassword.id;
     request.session.isAuthenticated = true;
 
-    logger.info('Sending response');
     return response.status(200).json({
       user: userWithoutPassword,
     });

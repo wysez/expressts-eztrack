@@ -1,35 +1,22 @@
-import express from 'express';
 import { createApplicaton } from './app';
 import { logger } from './core/utils/winston-logger';
 import { env } from './core/config';
-
-// validateEnv();
+import { closeDrizzleInstance } from './core/database/drizzle';
 
 const startServer = async () => {
   try {
     const app = await createApplicaton();
 
     app.listen(env.PORT, () => {
-      logger.info(
-        `==================================================================`,
-      );
-
-      logger.info(
-        `===================== 🚀 Server is running! ======================`,
-      );
-      logger.info(
-        `======================== ENV: ${env.NODE_ENV} ========================`,
-      );
-      logger.info(
-        `=========================== PORT: ${env.PORT} ===========================`,
-      );
-      logger.info(
-        `==================================================================`,
-      );
+      logger.info(`🚀 Server listening @ port ${env.PORT}.`);
     });
   } catch (error) {
-    console.error(error);
-    process.exit(1);
+    console.error(`❌ Error starting server: ${error}`);
+
+    // Clean up database connections, etc.
+    await closeDrizzleInstance();
+
+    console.debug('❗ Closed existing database connectins');
   }
 };
 

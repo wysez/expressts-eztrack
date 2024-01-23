@@ -63,7 +63,6 @@
   "eslint.codeAction.showDocumentation": {
     "enable": true
   },
-  "eslint.experimental.useFlatConfig": true,
   "eslint.validate": [
     "javascript",
     "javascriptreact",
