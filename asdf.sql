@@ -61,3 +61,20 @@ ALTER DEFAULT PRIVILEGES
     GRANT SELECT, INSERT, UPDATE, DELETE 
     ON TABLES 
     to eztrack_npe_group;
+
+-- Generate session table
+
+CREATE TABLE "session" (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL
+)
+WITH (OIDS=FALSE);
+
+ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+CREATE INDEX "IDX_session_expire" ON "session" ("expire");
+
+-- END Generate session table
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO eztrack_npe;
